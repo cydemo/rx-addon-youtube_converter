@@ -1,6 +1,9 @@
 jQuery(document).ready(function($) {
 
-	var editor;
+	var editor = $('[data-editor-primary-key-name$="_srl"]');
+	if ( editor.length < 1 ) {
+		return;
+	}
 	var matches = [], queries = {};
 	var id, list, start;
 	var regExp = /^((?:https?:)?\/\/)?((?:www|m)\.)?((?:youtube\.com|youtu.be))(\/(?:[\w\-]+\?v=|embed\/|v\/)?)([\w\-]+)(\S+)?$/;
