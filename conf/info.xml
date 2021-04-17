@@ -2,8 +2,8 @@
 <addon version="0.2">
 	<title xml:lang="ko">유튜브 링크 변환 애드온</title>
 	<description xml:lang="ko">CKEditor에 유튜브 링크를 '붙여넣기'하면 유튜브 임베드 코드로 '자동변환' 시켜주는 애드온</description>
-	<version>0.2.1</version>
-	<date>2021-04-09</date>
+	<version>0.2.2</version>
+	<date>2021-04-18</date>
 	<author email_address="cydemo@gmail.com" link="https://xetown.com">
 		<name xml:lang="ko">cydemo</name>
 	</author>
