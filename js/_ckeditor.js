@@ -4,16 +4,18 @@ jQuery(document).ready(function($) {
 	if ( editor.length < 1 ) {
 		return;
 	}
+	var paste = '';
 	var matches = [], queries = {};
 	var id, list, start;
 	var regExp = /^((?:https?:)?\/\/)?((?:www|m)\.)?((?:youtube\.com|youtu.be))(\/(?:[\w\-]+\?v=|embed\/|v\/)?)([\w\-]+)(\S+)?$/;
 
 	// Take One Second for the Content Loading
 	setTimeout(function() {
-		editor = CKEDITOR.instances.editor1;
-		
-		editor.on('paste', function(e) {
-			matches = e.data.dataValue.match(regExp);
+		var ck_editor = CKEDITOR.instances.editor1;
+		ck_editor.on('paste', function(e) {
+			paste = e.data.dataValue;
+
+			matches = paste.match(regExp);
 			if ( !matches || matches[5] === 'channel' || (matches[5] !== 'watch' && matches[5].length !== 11) ) {
 				return;
 			}
