@@ -1,77 +1,78 @@
 <?php
-if ( !defined('RX_VERSION') ) return;
-
-if ( $called_position === 'before_module_proc' )
+if ( !defined('RX_VERSION') )
 {
-	getController('module')->addTriggerFunction('file.deleteFile', 'after', function($file)
-	{
-		$cache_key = 'url_cache:' . getNumberingPath($file->upload_target_srl) . '?' . $file->source_filename;
-		if ( Rhymix\Framework\Cache::get($cache_key) )
-		{
-			Rhymix\Framework\Cache::delete($cache_key);
-		}
-	});
+	return;
+}
+if ( $called_position !== 'after_module_proc' || $this->module !== 'board' )
+{
+	return;
+}
+if ( !in_array($this->act, array('dispBoardContent', 'dispBoardWrite', 'dispBoardWriteComment', 'dispBoardReplyComment', 'dispBoardModifyComment', 'dispBoardDeleteComment')) )
+{
+	return;
 }
 
-if ( $called_position !== 'after_module_proc' || $this->module !== 'board' ) return;
-
-if ( in_array($this->act, array('dispBoardContent', 'dispBoardWrite', 'dispBoardWriteComment', 'dispBoardReplyComment', 'dispBoardModifyComment')) )
+if ( $this->act === 'dispBoardContent' )
 {
-	$editor_config = getModel('editor')->getEditorConfig($this->module_srl);
-	$editor_skin = $editor_config->editor_skin;
-	$comment_editor_skin = $editor_config->comment_editor_skin;
-
-	if ( $this->act === 'dispBoardContent' )
+	$oDocument = Context::get('oDocument');
+	if ( !$oDocument->document_srl )
 	{
-		$oDocument = Context::get('oDocument');
-		if ( !$oDocument->document_srl )
-		{
-			return;
-		}
-		if ( $editor_skin === 'ckeditor' || $comment_editor_skin === 'ckeditor' )
-		{
-			Context::addCssFile(__DIR__ . '/css/default.css');
-		}
-		if ( $oDocument->get('comment_status') === 'ALLOW' && in_array($comment_editor_skin, array('ckeditor', 'froalaeditor')) )
-		{
-			Context::addJsFile(__DIR__ . '/js/_' . $editor_skin . '.js');
-		}
+		return;
 	}
-	else
+}
+
+$editor_config = getModel('editor')->getEditorConfig($this->module_srl);
+$editor_skin = $editor_config->editor_skin;
+$comment_editor_skin = $editor_config->comment_editor_skin;
+
+$iframe_width = $addon_info->iframe_width ? $addon_info->iframe_width : '100%';
+$iframe_unit = preg_replace('/[0-9]/', '', $iframe_width);
+$iframe_height = ($iframe_width * 0.5625) . $iframe_unit;
+
+if ( $this->act === 'dispBoardContent' )
+{
+	if ( $editor_skin === 'ckeditor' || $comment_editor_skin === 'ckeditor' )
 	{
-		if ( $this->act === 'dispBoardWrite' )
-		{
-			if ( in_array($editor_skin, array('ckeditor', 'froalaeditor')) )
-			{
-				if ( $editor_skin === 'ckeditor' )
-				{
-					Context::addCssFile(__DIR__ . '/css/default.css');
-				}
-				Context::addJsFile(__DIR__ . '/js/_' . $editor_skin . '.js');
-			}
-			else
-			{
-				return;
-			}
-		}
-		else
-		{
-			if ( in_array($comment_editor_skin, array('ckeditor', 'froalaeditor')) )
-			{
-				if ( $comment_editor_skin === 'ckeditor' )
-				{
-					Context::addCssFile(__DIR__ . '/css/default.css');
-				}
-				Context::addJsFile(__DIR__ . '/js/_' . $comment_editor_skin . '.js');
-			}
-			else
-			{
-				return;
-			}
-		}
+		Context::addCssFile(__DIR__ . '/css/default.css');
+	}
+	if ( $oDocument->get('comment_status') === 'ALLOW' && in_array($comment_editor_skin, array('ckeditor', 'froalaeditor')) )
+	{
+		Context::addJsFile(__DIR__ . '/js/_' . $editor_skin . '.js');
 	}
 }
 else
 {
-	return;
+	if ( $this->act === 'dispBoardWrite' )
+	{
+		if ( in_array($editor_skin, array('ckeditor', 'froalaeditor')) )
+		{
+			if ( $editor_skin === 'ckeditor' )
+			{
+				Context::addCssFile(__DIR__ . '/css/default.css');
+			}
+			Context::addJsFile(__DIR__ . '/js/_' . $editor_skin . '.js');
+		}
+		else
+		{
+			return;
+		}
+	}
+	else
+	{
+		if ( in_array($comment_editor_skin, array('ckeditor', 'froalaeditor')) )
+		{
+			if ( $comment_editor_skin === 'ckeditor' )
+			{
+				Context::addCssFile(__DIR__ . '/css/default.css');
+			}
+			if ( $this->act !== 'dispBoardDeleteComment' )
+			{
+				Context::addJsFile(__DIR__ . '/js/_' . $comment_editor_skin . '.js');
+			}
+		}
+		else
+		{
+			return;
+		}
+	}
 }
